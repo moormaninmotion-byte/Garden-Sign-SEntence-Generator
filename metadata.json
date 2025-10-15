@@ -1,0 +1,5 @@
+{
+  "name": "Semantic Ambiguity Generator",
+  "description": "An application that uses the Gemini API to generate grammatically correct but semantically ambiguous sentences, providing a fun and thought-provoking experience.",
+  "requestFramePermissions": []
+}
