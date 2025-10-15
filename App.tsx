@@ -1,6 +1,5 @@
-
 import React, { useState, useCallback } from 'react';
-import { generateAmbiguousSentence, generateExplanation } from './services/geminiService';
+import { generateSentenceAndExplanation } from './services/geminiService';
 import Header from './components/Header';
 import SentenceDisplay from './components/SentenceDisplay';
 import GenerateButton from './components/GenerateButton';
@@ -18,14 +17,9 @@ Interpretation 2: 'hunting' is a verb, and 'they' are hunting the dogs.`);
         setIsLoading(true);
         setError(null);
         try {
-            const newSentenceRaw = await generateAmbiguousSentence();
-            const cleanedSentence = newSentenceRaw.replace(/["*]/g, '').trim();
-
-            const newExplanationRaw = await generateExplanation(cleanedSentence);
-            const cleanedExplanation = newExplanationRaw.replace(/[*]/g, '').trim();
-            
-            setSentence(cleanedSentence);
-            setExplanation(cleanedExplanation);
+            const { sentence, explanation } = await generateSentenceAndExplanation();
+            setSentence(sentence);
+            setExplanation(explanation);
         } catch (err) {
             setError('Failed to generate content. Please check your API key and try again.');
             console.error(err);
@@ -40,13 +34,24 @@ Interpretation 2: 'hunting' is a verb, and 'they' are hunting the dogs.`);
                 <div className="w-full max-w-2xl text-center space-y-8">
                     <Header />
                     
-                    <div className="relative w-full min-h-[12rem] flex items-center justify-center">
-                        {isLoading ? (
-                            <LoadingSpinner />
-                        ) : error ? (
-                             <p className="text-red-400 bg-red-900/30 p-4 rounded-lg">{error}</p>
-                        ) : (
-                            <SentenceDisplay sentence={sentence} explanation={explanation} />
+                    <div className="relative w-full min-h-[12rem]">
+                        <div 
+                            className={`transition-all duration-300 ease-in-out ${isLoading ? 'opacity-25 blur-sm' : 'opacity-100 blur-0'}`} 
+                            aria-hidden={isLoading}
+                        >
+                            {error ? (
+                                <div className="flex items-center justify-center min-h-[12rem]">
+                                    <p className="text-red-400 bg-red-900/30 p-4 rounded-lg">{error}</p>
+                                </div>
+                            ) : (
+                                <SentenceDisplay sentence={sentence} explanation={explanation} />
+                            )}
+                        </div>
+
+                        {isLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center" aria-live="polite" aria-busy="true">
+                                <LoadingSpinner />
+                            </div>
                         )}
                     </div>
 
